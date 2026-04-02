@@ -1,16 +1,11 @@
 import asyncio
-from openai import OpenAI
 from telebot import types
 import os
 
 from telebot.async_telebot import AsyncTeleBot
+from ollama_async import ollama_chat
 
 bot = AsyncTeleBot('8469870119:AAE5IG0YpKQT7Fv3EozFjNK_Msm1qxAALIE')
-
-client = OpenAI(
-    api_key= 'vEWH-2UaEszwKEDAUvdsxPk09mTQcfgC',
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-)
 
 user_data = {}
 
@@ -74,29 +69,34 @@ async def choose_to_language(call):
 async def convert_code(message):
     user_id = message.from_user.id
     code = message.text
-    
+
     from_lang = user_data[user_id]['from_lang']
     to_lang = user_data[user_id]['to_lang']
-    
+
     await bot.send_message(message.chat.id, "Конвертация кода, подождите...")
-    
+
     try:
-        prompt = f'Конвертируй следующий код с языка программирования {from_lang} на язык программирования {to_lang}. Верни только код, без обьяснений: \n\n{code}'
-        
-        completion = client.chat.completions.create(
-            model='qwen-coder-turbo',
-            messages=[
-                {"role": "system", "content": "Ты - программист, который конвентрует код из одного языка программирования в другой."},
-                {"role": "user", "content": prompt}
-            ]
+        prompt = (
+            f"Конвертируй следующий код с языка программирования {from_lang} "
+            f"на язык программирования {to_lang}. Верни только код, без объяснений.\n\n{code}"
         )
+
+        messages = [
+            {"role": "system", "content": "Ты программист, который конвертирует код из одного языка программирования в другой."},
+            {"role": "user", "content": prompt},
+        ]
+
+        converted_code = await ollama_chat(messages)
         
-        converted_code = completion.choices[0].message.content
-        await bot.send_message(message.chat.id, f"Конвертированный код:\n\n```{to_lang}\n{converted_code}\n```", parse_mode="Markdown")
-        
+        await bot.send_message(
+            message.chat.id,
+            f"Конвертированный код:\n\n```{to_lang}\n{converted_code}\n```",
+            parse_mode="Markdown",
+        )
+
         del user_data[user_id]
-    
+
     except Exception as err:
         await bot.send_message(message.chat.id, f"Ошибка при конвертации: {str(err)}")
-
+        
 asyncio.run(bot.polling())
