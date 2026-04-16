@@ -279,6 +279,21 @@ async def convert_code_from_file(message: Message) -> None:
         )
 
 
+async def main() -> None:
+    """Асинхронная основная функция."""
+    await bot.polling()
+
+
+def run() -> None:
+    """
+    Синхронная точка входа для консольного скрипта.
+    Запускает асинхронный цикл событий.
+    """
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\nБот остановлен пользователем.")
+
+
 if __name__ == "__main__":
-    # Запуск бота в режиме polling.
-    asyncio.run(bot.polling())
+    run()

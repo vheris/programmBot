@@ -22,6 +22,9 @@ dev = [
     "ruff>=0.3.0",
 ]
 
+[project.scripts]
+programm-bot = "programm_bot.bot:run"
+
 [tool.uv]
 managed = true
 package = true
