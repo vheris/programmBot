@@ -1,0 +1,25 @@
+[project]
+name = "programmBot"
+version = "1.0.0"
+description = "Telegram bot for code conversion using Ollama"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "vheris" }
+]
+dependencies = [
+    "pyTelegramBotAPI>=4.31.0",
+    "httpx>=0.28.1",
+]
+
+[project.scripts]
+# Позволяет запускать генерацию документации командой: uv run gen-docs
+gen-docs = "generate_docs:extract_docs"
+
+[tool.uv]
+managed = true
+package = true
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
