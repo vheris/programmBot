@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
-from telebot.types import Message
-from programm_bot.bot import welcome_message, choose_from_language, bot, user_data
+
+import pytest
+
+from programm_bot.bot import bot, choose_from_language, user_data, welcome_message
+
 
 @pytest.mark.asyncio
 async def test_welcome_message():
@@ -9,14 +11,14 @@ async def test_welcome_message():
     msg = MagicMock()
     msg.from_user.first_name = "Иван"
     msg.chat.id = 12345
-    
+
     bot.send_message = AsyncMock()
 
     await welcome_message(msg)
-    
+
     # Проверяем, что сообщение было отправлено
     bot.send_message.assert_called_once()
-    
+
     # Проверяем текст приветствия
     assert "Привет, Иван!" in bot.send_message.call_args[0][1]
 
