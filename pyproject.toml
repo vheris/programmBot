@@ -1,0 +1,47 @@
+[project]
+name = "programmBot"
+version = "1.0.0"
+description = "Telegram bot for code conversion using Ollama"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "vheris" }
+]
+dependencies = [
+    "pyTelegramBotAPI>=4.31.0",
+    "httpx>=0.28.1",
+    "aiohttp>=3.9.0",
+]
+
+[dependency-groups]
+dev = [
+    "sphinx>=7.2.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.5",
+    "ruff>=0.3.0",
+]
+
+[project.scripts]
+programm-bot = "programm_bot.bot:run"
+
+[tool.uv]
+managed = true
+package = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["src/programm_bot"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+# E, W - стандартные ошибки и предупреждения PEP8
+# F - ошибки логики (Pyflakes, например, неиспользуемые импорты)
+# I - сортировка импортов (замена isort)
+select = ["E", "F", "W", "I"]
+ignore = []
