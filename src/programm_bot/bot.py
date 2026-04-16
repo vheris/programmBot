@@ -17,7 +17,7 @@ from telebot import types
 import os
 
 from telebot.async_telebot import AsyncTeleBot
-from ollama_async import ollama_chat
+from .ollama_async import ollama_chat
 
 bot = AsyncTeleBot('8469870119:AAE5IG0YpKQT7Fv3EozFjNK_Msm1qxAALIE')
 

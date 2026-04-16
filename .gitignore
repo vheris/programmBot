@@ -33,3 +33,6 @@ dist/
 *.swp
 *.swo
 .DS_Store
+
+# docs
+docs/_build/
