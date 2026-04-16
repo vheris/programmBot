@@ -155,13 +155,13 @@ async def send_restart_prompt(chat_id: int) -> None:
     btn7 = types.InlineKeyboardButton("Swift",
                                       callback_data="from_swift")
     btn8 = types.InlineKeyboardButton("Go",
-                                      callback_data="from_go"),
+                                      callback_data="from_go")
     btn9 = types.InlineKeyboardButton("C#",
-                                       callback_data="from_csharp",)
+                                       callback_data="from_csharp")
 
-    markup.add(btn_auto),
-    markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9),
-    await bot.send_message(chat_id, text, reply_markup=markup),
+    markup.add(btn_auto)
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9)
+    await bot.send_message(chat_id, text, reply_markup=markup)
 
 
 @bot.message_handler(
