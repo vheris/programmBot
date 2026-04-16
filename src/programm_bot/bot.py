@@ -2,36 +2,30 @@
 
 Бот для конвертации кода между различными языками программирования
 используя локальную модель Ollama.
-
-Модули:
-    telebot: API для работы с Telegram ботом
-    ollama_async: Асинхронный клиент для Ollama API
-
-Примеры:
-    Запуск бота:
-    >>> python bot.py
 """
 
 import asyncio
 from telebot import types
-import os
-
+from telebot.types import Message, CallbackQuery
 from telebot.async_telebot import AsyncTeleBot
+
 from .ollama_async import ollama_chat
 
 bot = AsyncTeleBot('8469870119:AAE5IG0YpKQT7Fv3EozFjNK_Msm1qxAALIE')
 
-user_data = {}
+# Типизируем словарь, где ключом является ID пользователя (int), 
+# а значением — словарь с настройками языков (str)
+user_data: dict[int, dict[str, str]] = {}
 
 @bot.message_handler(commands=['start'])
-async def welcome_message(message):
+async def welcome_message(message: Message) -> None:
     """Обработчик команды /start - приветствие и выбор исходного языка.
     
     Отправляет приветственное сообщение и показывает кнопки для выбора
     исходного языка программирования (из какого языка переводить).
     
     Args:
-        message: Telegram message object с данными пользователя
+        message (Message): Объект сообщения Telegram с данными пользователя.
         
     Returns:
         None
@@ -55,14 +49,14 @@ async def welcome_message(message):
     
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('from_'))
-async def choose_from_language(call):
+async def choose_from_language(call: CallbackQuery) -> None:
     """Обработчик выбора исходного языка.
     
     Сохраняет выбранный пользователем исходный язык и показывает
     кнопки для выбора целевого языка (на какой язык переводить).
     
     Args:
-        call: Callback query object с данными о нажатой кнопке
+        call (CallbackQuery): Объект callback-запроса с данными о нажатой кнопке.
         
     Returns:
         None
@@ -90,14 +84,14 @@ async def choose_from_language(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('to_'))
-async def choose_to_language(call):
+async def choose_to_language(call: CallbackQuery) -> None:
     """Обработчик выбора целевого языка.
     
     Сохраняет выбранный пользователем целевой язык и уведомляет,
     что бот готов к получению кода.
     
     Args:
-        call: Callback query object с данными о нажатой кнопке
+        call (CallbackQuery): Объект callback-запроса с данными о нажатой кнопке.
         
     Returns:
         None
@@ -113,14 +107,14 @@ async def choose_to_language(call):
     await bot.edit_message_text(text, call.message.chat.id, call.message.id)
 
 
-async def send_restart_prompt(chat_id):
+async def send_restart_prompt(chat_id: int) -> None:
     """Отправляет приглашение к новой конвертации с клавиатурой.
     
     После успешной конвертации отправляет сообщение с предложением
     провести ещё одну конвертацию и кнопками выбора исходного языка.
     
     Args:
-        chat_id (int): Telegram ID чата для отправки сообщения
+        chat_id (int): Telegram ID чата для отправки сообщения.
         
     Returns:
         None
@@ -141,17 +135,17 @@ async def send_restart_prompt(chat_id):
 
 
 @bot.message_handler(func=lambda message: message.from_user.id in user_data and 'to_lang' in user_data[message.from_user.id])
-async def convert_code(message):
+async def convert_code(message: Message) -> None:
     """Обработчик текста кода для конвертации.
     
     Получает текст кода от пользователя, отправляет запрос на конвертацию
     в Ollama и возвращает результат с форматированием.
     
     Args:
-        message: Telegram message object с текстом кода
+        message (Message): Объект сообщения Telegram с текстом кода.
         
     Raises:
-        Exception: Если возникает ошибка при конвертации
+        Exception: Если возникает ошибка при обращении к Ollama.
         
     Returns:
         None
@@ -192,7 +186,7 @@ async def convert_code(message):
 
 
 @bot.message_handler(content_types=['document'], func=lambda message: message.from_user.id in user_data and 'to_lang' in user_data[message.from_user.id])
-async def convert_code_from_file(message):
+async def convert_code_from_file(message: Message) -> None:
     """Обработчик файлов с кодом для конвертации.
     
     Получает файл с кодом, скачивает его, и конвертирует содержимое
@@ -201,10 +195,10 @@ async def convert_code_from_file(message):
     Поддерживаемые форматы: .py, .js, .java, .cpp, .rb, .kt, .swift, .go, .cs, .txt
     
     Args:
-        message: Telegram message object с документом
+        message (Message): Объект сообщения Telegram с прикрепленным документом.
         
     Raises:
-        Exception: Если возникает ошибка при скачивании или обработке файла
+        Exception: Если возникает ошибка при скачивании или обработке файла.
         
     Returns:
         None
@@ -246,11 +240,6 @@ async def convert_code_from_file(message):
         await bot.send_message(message.chat.id, f"Ошибка при обработке файла: {str(err)}")
 
 
-
 if __name__ == "__main__":
-    """Запуск бота в режиме polling.
-    
-    Бот будет постоянно проверять серверы Telegram на наличие
-    новых сообщений и обрабатывать их.
-    """
+    """Запуск бота в режиме polling."""
     asyncio.run(bot.polling())
