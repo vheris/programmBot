@@ -4,6 +4,7 @@
 используя локальную модель Ollama.
 """
 
+import os
 import asyncio
 
 from telebot import types
@@ -12,7 +13,15 @@ from telebot.types import CallbackQuery, Message
 
 from .ollama_async import ollama_chat
 
-bot = AsyncTeleBot("8469870119:AAE5IG0YpKQT7Fv3EozFjNK_Msm1qxAALIE")
+# Получаем токен из переменных окружения
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+if not TOKEN:
+    raise ValueError(
+        "TELEGRAM_BOT_TOKEN не найден! Проверьте файл .env или настройки окружения."
+    )
+
+bot = AsyncTeleBot(TOKEN)
 
 # Типизируем словарь: ID пользователя -> настройки языков
 user_data: dict[int, dict[str, str]] = {}
@@ -37,26 +46,19 @@ async def welcome_message(message: Message) -> None:
     markup = types.InlineKeyboardMarkup(row_width=3)
 
     # Кнопка автоопределения
-    btn_auto = types.InlineKeyboardButton("🔍 Автоопределение",
-                                           callback_data="from_auto",)
+    btn_auto = types.InlineKeyboardButton(
+        "🔍 Автоопределение", callback_data="from_auto"
+    )
 
-    btn1 = types.InlineKeyboardButton("Python",
-                                      callback_data="from_python",)
-    btn2 = types.InlineKeyboardButton("JavaScript",
-                                      callback_data="from_javascript",)
-    btn3 = types.InlineKeyboardButton("Java",
-                                      callback_data="from_java",)
-    btn4 = types.InlineKeyboardButton("C++",
-                                      callback_data="from_cpp",)
-    btn5 = types.InlineKeyboardButton("Ruby",
-                                      callback_data="from_ruby",)
-    btn6 = types.InlineKeyboardButton("Kotlin",
-                                      callback_data="from_kotlin",)
-    btn7 = types.InlineKeyboardButton("Swift", callback_data="from_swift,")
-    btn8 = types.InlineKeyboardButton("Go",
-                                       callback_data="from_go",)
-    btn9 = types.InlineKeyboardButton("C#",
-                                      callback_data="from_csharp",)
+    btn1 = types.InlineKeyboardButton("Python", callback_data="from_python")
+    btn2 = types.InlineKeyboardButton("JavaScript", callback_data="from_javascript")
+    btn3 = types.InlineKeyboardButton("Java", callback_data="from_java")
+    btn4 = types.InlineKeyboardButton("C++", callback_data="from_cpp")
+    btn5 = types.InlineKeyboardButton("Ruby", callback_data="from_ruby")
+    btn6 = types.InlineKeyboardButton("Kotlin", callback_data="from_kotlin")
+    btn7 = types.InlineKeyboardButton("Swift", callback_data="from_swift")
+    btn8 = types.InlineKeyboardButton("Go", callback_data="from_go")
+    btn9 = types.InlineKeyboardButton("C#", callback_data="from_csharp")
 
     # Добавляем автоопределение первой строкой, затем остальные 3х3
     markup.add(btn_auto)
@@ -138,26 +140,18 @@ async def send_restart_prompt(chat_id: int) -> None:
     text = "Хочешь конвертировать ещё? Выбери исходный язык:"
     markup = types.InlineKeyboardMarkup(row_width=3)
 
-    btn_auto = types.InlineKeyboardButton("🔍 Автоопределение",
-                                          callback_data="from_auto",)
-    btn1 = types.InlineKeyboardButton("Python",
-                                      callback_data="from_python",)
-    btn2 = types.InlineKeyboardButton("JavaScript",
-                                      callback_data="from_javascript")
-    btn3 = types.InlineKeyboardButton("Java",
-                                       callback_data="from_java")
-    btn4 = types.InlineKeyboardButton("C++",
-                                      callback_data="from_cpp")
-    btn5 = types.InlineKeyboardButton("Ruby",
-                                      callback_data="from_ruby")
-    btn6 = types.InlineKeyboardButton("Kotlin",
-                                      callback_data="from_kotlin")
-    btn7 = types.InlineKeyboardButton("Swift",
-                                      callback_data="from_swift")
-    btn8 = types.InlineKeyboardButton("Go",
-                                      callback_data="from_go")
-    btn9 = types.InlineKeyboardButton("C#",
-                                       callback_data="from_csharp")
+    btn_auto = types.InlineKeyboardButton(
+        "🔍 Автоопределение", callback_data="from_auto"
+    )
+    btn1 = types.InlineKeyboardButton("Python", callback_data="from_python")
+    btn2 = types.InlineKeyboardButton("JavaScript", callback_data="from_javascript")
+    btn3 = types.InlineKeyboardButton("Java", callback_data="from_java")
+    btn4 = types.InlineKeyboardButton("C++", callback_data="from_cpp")
+    btn5 = types.InlineKeyboardButton("Ruby", callback_data="from_ruby")
+    btn6 = types.InlineKeyboardButton("Kotlin", callback_data="from_kotlin")
+    btn7 = types.InlineKeyboardButton("Swift", callback_data="from_swift")
+    btn8 = types.InlineKeyboardButton("Go", callback_data="from_go")
+    btn9 = types.InlineKeyboardButton("C#", callback_data="from_csharp")
 
     markup.add(btn_auto)
     markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9)
@@ -165,8 +159,10 @@ async def send_restart_prompt(chat_id: int) -> None:
 
 
 @bot.message_handler(
-    func=lambda message: message.from_user.id in user_data
-    and "to_lang" in user_data[message.from_user.id]
+    func=lambda message: (
+        message.from_user.id in user_data
+        and "to_lang" in user_data[message.from_user.id]
+    )
 )
 async def convert_code(message: Message) -> None:
     """Обработчик текста кода для конвертации.
@@ -221,8 +217,10 @@ async def convert_code(message: Message) -> None:
 
 @bot.message_handler(
     content_types=["document"],
-    func=lambda message: message.from_user.id in user_data
-    and "to_lang" in user_data[message.from_user.id],
+    func=lambda message: (
+        message.from_user.id in user_data
+        and "to_lang" in user_data[message.from_user.id]
+    ),
 )
 async def convert_code_from_file(message: Message) -> None:
     """Обработчик файлов с кодом для конвертации.

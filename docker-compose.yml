@@ -1,0 +1,22 @@
+services:
+  bot:
+    build: .
+    container_name: programm_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Передаем адрес Ollama внутри Docker-сети
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  ollama_data:
